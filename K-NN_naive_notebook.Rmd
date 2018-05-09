@@ -4,7 +4,7 @@ author: "vivek singh"
 date: "23 April 2018"
 output: html_document
 ---
-##loading required libraries.r
+##loading required libraries
 ```{r}
 library(caret)
 library(class)
