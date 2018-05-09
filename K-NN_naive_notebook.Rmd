@@ -1,0 +1,68 @@
+---
+title: "fraud card detection"
+author: "vivek singh"
+date: "23 April 2018"
+output: html_document
+---
+##loading required libraries
+```{r}
+library(caret)
+library(class)
+library(e1071)
+library(ROCR)
+```
+## calling a .csv file
+```{r}
+credit <- read.csv("creditcard.csv")
+```
+##the structure of the dataset was looked upon
+```{r}
+str(credit)
+```
+##Because the variable "Class" is of a class "integer", the factor transformation was performed: 
+```{r}
+credit$Class <- factor(credit$Class)
+```
+##dividing train data_set with 20% train and 80% test
+```{r}
+set.seed(200)
+samp <- sample(1:nrow(credit), round(0.2*nrow(credit)))
+credit <- credit[samp, ]
+index <- createDataPartition(credit$Class, p = 0.75, list = F)
+train <- credit[index, ]
+test <- credit[-index, ]
+```
+##K-Nearest Neighbors, number of neighbours was set to 5 as a default
+```{r}
+knn1 <- knn(train = train[,-31], test = test[,-31], cl = train$Class, k = 5)
+```
+##confusion matrix
+```{r}
+confusionMatrix(knn1, test$Class, positive = "1")
+##the model did not predict any cases of "fraud" (that is, "Class" = 1),
+##though some actual cases of fraud were erroneously assigned to be non-fraud. 
+
+```
+## Naive Bayes
+```{r}
+bayes <- naiveBayes(Class~., data = train, laplace = 1)
+bayes$apriori
+##apriori frequencies suggest that the model is heavily inclined to assigning non-fraud values 
+```
+## predicted classes for a testing dataset confusionMatrix:
+```{r}
+pred <- predict(bayes, test)
+confusionMatrix(pred, test$Class, positive = "1")
+rawpred <- predict(bayes, test, type = "raw")
+```
+##measuring the performance
+```{r}
+ptest <- prediction(rawpred[,2], test$Class)
+perf <- performance(ptest, "tpr", "fpr")
+plot(perf, colorize = T)
+performance(ptest, "auc")@y.values
+```
+# Conclusion::
+##K-Nearest Neighbors algorithm clearly should be prioritized over Naive Bayes 
+##in the extraction of the most accurate predictions in terms of whether a credit card 
+##will be detected fraud or not, save for other, perhaps more effective, classifiers. 
