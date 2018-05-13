@@ -1,6 +1,6 @@
 ---
 title: "fraud card detection"
-author: "vivek singh"
+author: "murli singh"
 date: "23 April 2018"
 output: html_document
 ---
